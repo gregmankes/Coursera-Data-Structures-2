@@ -125,7 +125,7 @@ public abstract class Graph {
 		
 		List degSeq = new ArrayList<Integer>();
 		for (int i = 0; i < getNumVertices(); i++){
-			degSeq.add(getInNeighbors(i).size()+getNeighbors(i).size());
+			degSeq.add(getInNeighbors(i).size());
 		}
 		
 		Collections.sort(degSeq,Collections.reverseOrder());
@@ -237,7 +237,7 @@ public abstract class Graph {
 
 	
 	public static void main (String[] args) {
-		GraphLoader.createIntersectionsFile("data/testdata/simpletest.map", "data/intersections/simpletest.intersections");
+		GraphLoader.createIntersectionsFile("data/maps/ucsd.map", "data/intersections/ucsd.intersections");
 		
 
 		// For testing of Part 1 functionality
@@ -249,7 +249,7 @@ public abstract class Graph {
 		System.out.println("****");
 		System.out.println("Roads / intersections:");
 		GraphAdjList graphFromFile = new GraphAdjList();
-		GraphLoader.loadRoadMap("data/testdata/simpletest.map", graphFromFile);
+		GraphLoader.loadRoadMap("data/maps/ucsd.map", graphFromFile);
 		System.out.println(graphFromFile);
 		
 		System.out.println("Observe all degrees are <= 12.");

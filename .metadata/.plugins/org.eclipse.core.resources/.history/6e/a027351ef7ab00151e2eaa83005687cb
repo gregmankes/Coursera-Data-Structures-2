@@ -109,7 +109,7 @@ public class GraphAdjMatrix extends Graph {
 	 */	
 	public List<Integer> getDistance2(int v) {
 		
-		
+		//:XXX
 		
 		List<Integer> neighbors1 = getNeighbors(v);
 		List<Integer> neighbors2;

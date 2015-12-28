@@ -99,21 +99,10 @@ public class GraphAdjList extends Graph {
 		 // XXX: Implement this method in week 1
 		 
 		 List<Integer> neighbors1 = getNeighbors(v);
-		 List<Integer> neighbors2;
-		 
-		 List<Integer> twoHopNeighbors = new ArrayList<Integer>();
 		 
 		 
-		 for(Integer n : neighbors1){
-			 neighbors2 = getNeighbors(n);
-			 for(Integer i : neighbors2){
-				 if(!twoHopNeighbors.contains(i)){
-					 twoHopNeighbors.add(i);
-				 }
-			 }
-		 }
 		 
-		 return twoHopNeighbors;
+		 return null;
 	}
 	
 	/**

@@ -122,16 +122,7 @@ public abstract class Graph {
 	 */
 	public List<Integer> degreeSequence() {
 		// XXX: Implement in part 1 of week 1
-		
-		List degSeq = new ArrayList<Integer>();
-		for (int i = 0; i < getNumVertices(); i++){
-			degSeq.add(getInNeighbors(i).size()+getNeighbors(i).size());
-		}
-		
-		Collections.sort(degSeq,Collections.reverseOrder());
-//		Collections.reverse(degSeq);
-		
-		return degSeq;
+		return null;
 	}
 	
 	/**
@@ -237,7 +228,7 @@ public abstract class Graph {
 
 	
 	public static void main (String[] args) {
-		GraphLoader.createIntersectionsFile("data/testdata/simpletest.map", "data/intersections/simpletest.intersections");
+		GraphLoader.createIntersectionsFile("data/maps/myucsd.map", "data/intersections/myucsd.intersections");
 		
 
 		// For testing of Part 1 functionality
