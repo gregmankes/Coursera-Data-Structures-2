@@ -550,6 +550,89 @@ public class MapGraph {
 		
 		return false;
 	}
+	
+	/** Traveling SalesPerson subroutine
+	 * 
+	 * Starts at the start node, and then traverses all of the nodes in the set 
+	 * without revisiting the same node
+	 * 
+	 * @param start the starting location
+	 * @param nodeSet the set of nodes that we must traverse and end back at the start
+	 * @return a list of the path we take
+	 */
+	public List<GeographicPoint> tsp(GeographicPoint start, Set<GeographicPoint> nodeSet){
+		// Initialize a list of the path we take and a visited HashSet
+		LinkedList<GeographicPoint> bestPath = new LinkedList<GeographicPoint>();
+						
+		// if the start location is in the node set, remove it
+		if(nodeSet.contains(start)){
+			nodeSet.remove(start);
+		}
+		
+		// set our current location to be the start node 
+		// and initialize variables to be used inside the while loop
+		GeographicPoint currentLocation = start;
+		GeographicPoint selectedLocation = null;
+		double bestDist;
+		List<GeographicPoint> possiblePath;
+
+		
+		// add start to the path list
+		bestPath.add(start);
+		
+		// While there are still nodes in the set
+		while(!nodeSet.isEmpty()){
+			// Prime the best distance so far variable to be large
+			bestDist = Double.MAX_VALUE;
+			
+			// for each location in the node set
+			for(GeographicPoint gp : nodeSet){
+				// find a possible path from the currentLocation to the node
+				// in the nodeSet
+				possiblePath = aStarSearch(currentLocation, gp);
+				
+				// if that path's distance is better than the best 
+				// distance so far, the possible path exists, and we haven't
+				// visited this node
+				if(possiblePath != null && getPathDist(possiblePath) < bestDist){
+					// update the best distance and the selected location
+					bestDist = getPathDist(possiblePath);
+					selectedLocation = gp;
+				}
+			}
+			
+			// add the selected location to the path
+			bestPath.add(selectedLocation);
+			// remove the currentLocation from the visited set
+			nodeSet.remove(currentLocation);
+			// set the currentLocation to be the selected location
+			currentLocation = selectedLocation;
+		}
+		// add the start to the back of the path
+		bestPath.add(start);
+			
+		// return the path
+		return bestPath;
+	}
+	
+	/** getPathDist private helper method for tsp
+	 * 
+	 * @param path the list of elements visited by the aStarSearch
+	 * @return the distance traveled in the path
+	 */
+	private double getPathDist(List<GeographicPoint> path){
+		// init distance = 0
+		double dist = 0;
+		
+		// for each pair in the list, get the distance between the two
+		// of them and then add it to the distance
+		for(int i = 0; i< path.size()-1; i++){
+			dist += path.get(i).distance(path.get(i+1));
+		}
+		
+		//return the distance
+		return dist;
+	}
 
 	/**Prints each nodes directed edges. Used for debugging.
 	 * 
