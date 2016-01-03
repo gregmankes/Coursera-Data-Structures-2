@@ -18,6 +18,7 @@ import util.GraphLoader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 
 /**
  * @author UCSD MOOC development team and YOU
@@ -296,14 +297,120 @@ public class MapGraph {
 	public List<GeographicPoint> dijkstra(GeographicPoint start, 
 										  GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
 	{
-		// TODO: Implement this method in WEEK 3
 
 		// Hook for visualization.  See writeup.
 		//nodeSearched.accept(next.getLocation());
 		
-		return null;
+		HashMap<GeographicPoint, GeographicPoint> parentMap = 
+				new HashMap<GeographicPoint, GeographicPoint>();
+		
+		boolean found = dijkstraSearch(start, goal, nodeSearched, parentMap);
+		
+		if(!found){
+			System.out.println("No path exists");
+			return null;
+		}
+		
+		return constructPath(start, goal, parentMap);
 	}
 
+	/**Factorization of Dijkstra into Dijkstra search and construct path
+	 * 
+	 * @param start the start GeographicPoint
+	 * @param goal the end GeographicPoint
+	 * @param nodeSearched the consumer nodes searched for visualization
+	 * @param parentMap the list of parents for reconstructing the path
+	 * @return a boolean of whether the goal was found or not
+	 */
+	private boolean dijkstraSearch(GeographicPoint start,
+			GeographicPoint goal, Consumer<GeographicPoint> nodeSearched,
+			HashMap<GeographicPoint, GeographicPoint> parentMap){
+		
+		// Init a priority queue and a hashset of visted nodes
+		PriorityQueue<PriorityQueueEntry> pQueue = 
+				new PriorityQueue<PriorityQueueEntry>();
+		
+		HashSet<GeographicPoint> visited = new HashSet<GeographicPoint>();
+		
+		// Get a set of all possible values for the
+		// hashmap containing the nodes
+		Set<GeographicPoint> keySet = nodes.keySet();
+		
+		// Set each PriorityQueueEntry startDistance to infinity
+		for(GeographicPoint gp : keySet){
+			nodes.get(gp).setDistanceFromStart(Double.MAX_VALUE);
+		}
+		
+		//set the start distance to 0, and add to Priority Queue
+		MapNode currentNode = nodes.get(start);
+		
+		currentNode.setDistanceFromStart(0);
+		
+		pQueue.add(new PriorityQueueEntry(start,currentNode.getFn()));
+		
+		// Initialize a priority queue entry and list of map edge neighbors
+		// to be overridden inside the while loop
+		PriorityQueueEntry currentPqe;
+		List<MapEdge> neighbors;
+		MapNode neighborNode;
+		
+		// While the priority queue is not empty
+		while(!pQueue.isEmpty()){
+			
+			// get the highest priority element from the queue
+			currentPqe = pQueue.remove();
+			
+			currentNode = nodes.get(currentPqe.getLocation());
+			
+			// if we haven't visited this node
+			if(!visited.contains(currentNode.getLocation())){
+				
+				// add it to the visited set
+				visited.add(currentNode.getLocation());
+				
+				//if this is the goal, return true
+				if(currentNode.getLocation().distance(goal) == 0){
+					return true;
+				}
+				
+				// get a list of neighbors from the current node
+				neighbors = currentNode.getNeighbors();
+								
+				// for each of the neighbors not in the visited set
+				for(MapEdge n : neighbors){
+					if(!visited.contains(n.getEnd())){
+						
+						//get a reference to the neighbor
+						neighborNode = nodes.get(n.getEnd());
+						
+						// if the associated neighbor's distance attribute
+						// is smaller than that of the edge to it
+						if(neighborNode.getFn() > (n.getDistance()+currentNode.getFn())){
+							
+							//update the distance attribute
+							neighborNode.setDistanceFromStart(n.getDistance()+currentNode.getFn());
+																		
+							// place current priority queue entry as the nodes
+							//parent
+							parentMap.put(n.getEnd(), currentNode.getLocation());
+														
+							// add a new priority queue entry with this neighbor
+							// and its updated distance
+							pQueue.add(new PriorityQueueEntry(n.getEnd(),neighborNode.getFn()));
+							
+							// add the consumer visualization
+							nodeSearched.accept(neighborNode.getLocation());
+							
+						}				
+					}
+				}
+			}
+		}
+		
+		
+		return false;
+	}
+	
 	/** Find the path from start to goal using A-Star search
 	 * 
 	 * @param start The starting location
@@ -328,12 +435,120 @@ public class MapGraph {
 	public List<GeographicPoint> aStarSearch(GeographicPoint start, 
 											 GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
 	{
-		// TODO: Implement this method in WEEK 3
 		
+		HashMap<GeographicPoint,GeographicPoint> parentMap = 
+				new HashMap<GeographicPoint,GeographicPoint>();
+		
+		boolean found = aStarSearchSearch(start, goal, nodeSearched, parentMap);
+		
+		if(!found){
+			System.out.println("Not Found");
+			return null;
+		}
 		// Hook for visualization.  See writeup.
 		//nodeSearched.accept(next.getLocation());
 		
-		return null;
+		return constructPath(start, goal, parentMap);
+	}
+	
+	/** aStarSearchSearch
+	 * This is a factorization of aStarSearch into the search subroutine
+	 * and the construct path subroutine
+	 * 
+	 * @param start the start location
+	 * @param goal the end location
+	 * @param nodeSearched the consumer used for visualization
+	 * @param parentMap the map of the path taken
+	 * @return a boolean of whether we found the node
+	 */
+	private boolean aStarSearchSearch(GeographicPoint start,
+			GeographicPoint goal, Consumer<GeographicPoint> nodeSearched,
+			HashMap<GeographicPoint,GeographicPoint> parentMap){
+		
+		// Init a priority queue and a hashset of visted nodes
+		PriorityQueue<PriorityQueueEntry> pQueue = 
+				new PriorityQueue<PriorityQueueEntry>();
+		
+		HashSet<GeographicPoint> visited = new HashSet<GeographicPoint>();
+		
+		// Get a set of all possible values for the
+		// hashmap containing the nodes
+		Set<GeographicPoint> keySet = nodes.keySet();
+		
+		// Set each PriorityQueueEntry startDistance to infinity
+		// and endDistance to the distance from itself to the goal
+		for(GeographicPoint gp : keySet){
+			nodes.get(gp).setDistanceFromStart(Double.MAX_VALUE);
+			nodes.get(gp).setDistanceFromGoal(gp.distance(goal));
+		}
+		
+		//set the start distance to 0, and add to Priority Queue
+		MapNode currentNode = nodes.get(start);
+		
+		currentNode.setDistanceFromStart(0);
+		
+		pQueue.add(new PriorityQueueEntry(start,currentNode.getFn()));
+		
+		// Initialize a priority queue entry and list of map edge neighbors
+		// to be overridden inside the while loop
+		PriorityQueueEntry currentPqe;
+		List<MapEdge> neighbors;
+		MapNode neighborNode;
+		
+		// While the priority queue is not empty
+		while(!pQueue.isEmpty()){
+			
+			// get the highest priority element from the queue
+			currentPqe = pQueue.remove();
+			
+			currentNode = nodes.get(currentPqe.getLocation());
+			
+			// if we haven't visited this node
+			if(!visited.contains(currentNode.getLocation())){
+				
+				// add it to the visited set
+				visited.add(currentNode.getLocation());
+				
+				//if this is the goal, return true
+				if(currentNode.getLocation().distance(goal) == 0){
+					return true;
+				}
+				
+				// get a list of neighbors from the current node
+				neighbors = currentNode.getNeighbors();
+								
+				// for each of the neighbors not in the visited set
+				for(MapEdge n : neighbors){
+					if(!visited.contains(n.getEnd())){
+						
+						//get a reference to the neighbor
+						neighborNode = nodes.get(n.getEnd());
+						
+						// if the associated neighbor's distance attribute
+						// is smaller than that of the edge to it
+						if(neighborNode.getFn() > (n.getDistance()+currentNode.getFn())){
+							
+							//update the distance attribute
+							neighborNode.setDistanceFromStart(n.getDistance()+currentNode.getFn());
+																		
+							// place current priority queue entry as the nodes
+							//parent
+							parentMap.put(n.getEnd(), currentNode.getLocation());
+														
+							// add a new priority queue entry with this neighbor
+							// and its updated distance
+							pQueue.add(new PriorityQueueEntry(n.getEnd(),neighborNode.getFn()));
+							
+							// add the consumer visualization
+							nodeSearched.accept(neighborNode.getLocation());
+							
+						}				
+					}
+				}
+			}
+		}
+		
+		return false;
 	}
 
 	/**Prints each nodes directed edges. Used for debugging.
@@ -364,9 +579,10 @@ public class MapGraph {
 		GeographicPoint start = new GeographicPoint(1,1);
 		GeographicPoint goal = new GeographicPoint(8,-1);
 
-		List<GeographicPoint> route = theMap.bfs(start, goal);
+		List<GeographicPoint> route = theMap.dijkstra(start, goal);
 
 		System.out.println(route.toString());
+				
 		// You can use this method for testing.  
 		
 		/* Use this code in Week 3 End of Week Quiz
@@ -380,9 +596,13 @@ public class MapGraph {
 		
 		
 		List<GeographicPoint> route = theMap.dijkstra(start,end);
-		List<GeographicPoint> route2 = theMap.aStarSearch(start,end);
-
 		*/
+		
+		
+		List<GeographicPoint> route2 = theMap.aStarSearch(start,goal);
+		
+		System.out.println(route2);
+		
 		
 	}
 	

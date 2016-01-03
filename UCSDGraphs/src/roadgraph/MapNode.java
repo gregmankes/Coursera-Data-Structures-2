@@ -20,6 +20,9 @@ public class MapNode {
 	// Keep track here of what our neighbors are
 	private List<MapEdge> edges;
 	
+	private double distanceFromStart;
+	
+	private double distanceFromGoal;
 	
 	
 	/**
@@ -29,6 +32,8 @@ public class MapNode {
 	MapNode(GeographicPoint gp){
 		this.gp = gp;
 		this.edges = new LinkedList<MapEdge>();
+		this.distanceFromStart = 0;
+		this.distanceFromGoal = 0;
 	}
 	
 	/**
@@ -67,12 +72,36 @@ public class MapNode {
 		return this.edges;
 	}
 	
+	public void setDistanceFromStart(double distance){
+		this.distanceFromStart = distance;
+	}
+	
+	public double getDistanceFromStart(){
+		return this.distanceFromStart;
+	}
+	
+	public void setDistanceFromGoal(double distance){
+		this.distanceFromGoal = distance;
+	}
+	
+	public double getDistanceFromGoal(){
+		return this.distanceFromGoal;
+	}
+	
+	public double getFn(){
+		return this.getDistanceFromStart()+this.getDistanceFromGoal();
+	}
+	
+	public GeographicPoint getLocation(){
+		return this.gp;
+	}
+	
 	/**Prints the node and the out edges that it has
 	 * 
 	 */
 	@Override
 	public String toString(){
-		//XXX: Need to finish this later
+		//: Need to finish this later
 		String toReturn = "This node is "+gp.getX()+", "+gp.getY()+". Its edges are: \n";
 		for(MapEdge me : this.edges){
 			toReturn+=me.debugString();

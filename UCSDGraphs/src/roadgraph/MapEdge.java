@@ -94,7 +94,7 @@ public class MapEdge {
 	public String debugString(){
 		String toReturn = ""+this.start.getX()+" "+this.start.getY()+" "+
 				this.end.getX()+" "+this.end.getY()+" "+this.getStreetName()+" "+
-				this.getStreetType()+"\n";
+				this.getStreetType()+" "+this.getDistance()+"\n";
 		
 		return toReturn;
 	}
